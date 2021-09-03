@@ -1,4 +1,3 @@
-import argparse
 import subprocess
 import os
 import re
@@ -23,13 +22,14 @@ for line in lines:
 
 # Read the list of templates to fill out
 programs = {}
+template_list_path = os.path.expanduser('~/.config/colours/templates.txt')
 try:
-    with open('templates.txt', 'r') as f:
+    with open(template_list_path, 'r') as f:
         for line in f.readlines():
             parts = line.split(':')
             programs[parts[0]] = parts[1].strip()
 except FileNotFoundError:
-    with open('templates.txt', 'w'):
+    with open(template_list_path, 'w'):
         print('No template list found, made an empty file')
 
 # For each program, read its template file and then save it
