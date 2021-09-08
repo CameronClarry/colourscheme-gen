@@ -27,7 +27,7 @@ if [[ ! -a "$HOME/.config/colours/colourschemes/$2" ]]; then
 fi
 
 # Then do a symbolic link from that colourscheme to .config/colours/current
-if [[ -a "$HOME/.config/colours/current" ]]; then
+if [[ -L "$HOME/.config/colours/current" ]]; then
 	rm "$HOME/.config/colours/current"
 	echo "Removed existing colourscheme symlink"
 fi
