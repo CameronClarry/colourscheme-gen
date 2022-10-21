@@ -203,9 +203,12 @@ def kmeans_separation(x, counts, n_clusters, s):
         
         dist_arr = np.stack(dist_arrs, axis=1)
 
-        closest = np.argpartition(dist_arr, 2, axis=1)
-        centroid_separations = dist(oldMeans[closest[:,0]], oldMeans[closest[:,1]])
-        weights = (dist_arr[np.arange(x.shape[0]),closest[:,0]] - dist_arr[np.arange(x.shape[0]),closest[:,1]])/centroid_separations
+        if n_clusters > 2:
+            closest = np.argpartition(dist_arr, 2, axis=1)
+            centroid_separations = dist(oldMeans[closest[:,0]], oldMeans[closest[:,1]])
+            weights = (dist_arr[np.arange(x.shape[0]),closest[:,0]] - dist_arr[np.arange(x.shape[0]),closest[:,1]])/centroid_separations
+        else:
+            weights = np.ones(x.shape[0])
 
         means = []
         for i in range(n_clusters):
@@ -344,6 +347,7 @@ L, a, b = xyz_to_lab(*rgb_to_xyz(r, g, b))
 
 # Split data into categories based on luminosity percentiles
 mask_background = L < np.percentile(L, 10)
+mask_background2 = np.logical_and(L < np.percentile(L, 40), L > np.percentile(L, 20))
 mask_foreground = L > np.percentile(L, 90)
 mask_accent = np.logical_and(L < np.percentile(L, 80), L > np.percentile(L, 50))
 
@@ -406,9 +410,14 @@ means_a = kmeans_colours(x_a, counts_a, 10)
 # Get the 3 background colours
 x_b = x[mask_background]
 counts_b = counts[mask_background]
-means_b = kmeans_colours(x_b, counts_b, 3)
+means_b = kmeans_colours(x_b, counts_b, 1)
 
-def output_colours(bg, a, fg, xresources=False):
+x_b2 = x[mask_background2]
+counts_b2 = counts[mask_background2]
+means_b2 = kmeans_colours(x_b2, counts_b2, 2)
+print(means_b2)
+
+def output_colours(bg, bg2,  a, fg, xresources=False):
     if xresources:
         num_str = '*.color%d: #%02x%02x%02x'
         bg_str = '*.background: #%02x%02x%02x'
@@ -420,7 +429,7 @@ def output_colours(bg, a, fg, xresources=False):
         fg_str = '#define FOREGROUND #%02x%02x%02x'
         cursor_str = '#define CURSOR #ffffff'
     
-    colours = np.concatenate([bg, a, fg], axis=0)
+    colours = np.concatenate([bg, bg2, a, fg], axis=0)
     for i in range(colours.shape[0]):
         colour = colours[i]
         print(num_str%(i, int(colour[0]), int(colour[1]), int(colour[2])))
@@ -429,4 +438,4 @@ def output_colours(bg, a, fg, xresources=False):
     print(fg_str%(int(fg[-1,0]), int(fg[-1,1]), int(fg[-1,2])))
     print(cursor_str)
 
-output_colours(means_b, means_a, means_f, use_xresources)
+output_colours(means_b, means_b2,  means_a, means_f, use_xresources)

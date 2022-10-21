@@ -50,4 +50,4 @@ if [[ -L "$HOME/.config/colours/currentbg" ]]; then
 fi
 
 ln -s "$1" "$HOME/.config/colours/currentbg"
-feh --bg-fill "$(readlink "$HOME/.config/colours/currentbg")"
+feh --no-fehbg --bg-fill "$(readlink "$HOME/.config/colours/currentbg")"
