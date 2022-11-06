@@ -23,7 +23,7 @@ fi
 
 if [[ ! -a "$HOME/.config/colours/colourschemes/$2" ]]; then
 	echo "Generating colourscheme"
-	python $HOME/.config/colours/colourscheme.py "$1" -s 10 > "$HOME/.config/colours/colourschemes/$2"
+	python $HOME/.config/colours/generate-colourscheme.py "$1" -s 10 > "$HOME/.config/colours/colourschemes/$2"
 fi
 
 # Then do a symbolic link from that colourscheme to .config/colours/current
@@ -38,9 +38,9 @@ ln -s "$HOME/.config/colours/colourschemes/$2" "$HOME/.config/colours/current"
 
 xrdb -merge "$HOME/.Xresources"
 
-# Run the update script
+# Fill the template configs with the correct colours
 
-python "$HOME/.config/colours/colours.py"
+python "$HOME/.config/colours/fill-templates.py"
 
 # Set the desktop background
 
