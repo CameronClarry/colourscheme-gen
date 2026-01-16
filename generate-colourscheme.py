@@ -26,17 +26,18 @@ if seed != 0:
 # Shrink the image to nxn
 img = Image.open(img_path)
 img.thumbnail((600, 600))
-# Get colour values, and convert to CIELAB
 
-counts = []
-colours = []
+# Get colour values
+counts_list = []
+colours_list = []
 width, height = img.size
 for count, colour in img.getcolors(width*height):
-    counts.append(count)
-    colours.append(colour)
+    counts_list.append(count)
+    colours_list.append(colour)
+colours = np.array(colours_list)
+counts = np.array(counts_list)
 
-colours = np.array(colours)
-counts = np.array(counts)
+# Convert colours to CIELAB
 r = colours[:,0]
 g = colours[:,1]
 b = colours[:,2]
@@ -49,23 +50,8 @@ mask_foreground = L > np.percentile(L, 90)
 mask_accent = np.logical_and(L < np.percentile(L, 90), L > np.percentile(L, 60))
 
 
-# Perform clustering on each category
+# Combine the channels
 x = np.stack([L, a, b], axis=1)
-
-#min_points = 6
-#dists = kdist(x_foreground, min_points)
-#epsilon = np.percentile(dists, 30)
-#labels, n_clusters = dbscan(x_foreground, counts_foreground, epsilon, min_points)
-#cluster_plot(x_foreground, labels, n_clusters, 'colour-dbscan.pdf')
-#cluster_info(x_foreground, labels, counts_foreground)
-
-# Taking the largest cluster and using it to generate 3 foreground colours
-# Identify the largest cluster
-#sorted_labels, sorted_sizes = cluster_info(x_foreground, labels, counts_foreground)
-#largest_cluster = sorted_labels[-1]
-#print('largest cluster: %d'%largest_cluster)
-#x_f = x_foreground[labels == largest_cluster]
-#counts_f = counts_foreground[labels == largest_cluster]
 
 # Get the 3 foreground colours
 x_f = x[mask_foreground]
@@ -86,6 +72,7 @@ x_b2 = x[mask_background2]
 counts_b2 = counts[mask_background2]
 means_b2 = kmeans_colours(x_b2, counts_b2, 2, separation=separation, repulsion=repulsion)
 
+# Print the colours in a form for xrdb
 def output_colours(bg, bg2, a, fg, xresources=False):
     if xresources:
         num_str = '*.color%d: #%02x%02x%02x'

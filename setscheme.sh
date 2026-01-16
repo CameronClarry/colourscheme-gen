@@ -49,5 +49,5 @@ if [[ -L "$HOME/.config/colours/currentbg" ]]; then
 	echo "Removed existing background symlink"
 fi
 
-ln -s "$1" "$HOME/.config/colours/currentbg"
+ln -s "$(realpath $1)" "$HOME/.config/colours/currentbg"
 feh --no-fehbg --bg-fill "$(readlink "$HOME/.config/colours/currentbg")"
